@@ -9,6 +9,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const token = ref<string | null>(localStorage.getItem('eduflow_token'))
   const role = computed(() => user.value?.role)
+  const isAuthenticated = computed(() => !!token.value)
   const isInstructor = computed(() => role.value === UserRole.INSTRUCTOR || role.value === UserRole.ADMIN)
 
   async function login(payload: LoginPayload) {
@@ -36,5 +37,5 @@ export const useAuthStore = defineStore('auth', () => {
     clearToken()
   }
 
-  return { user, token, role, isInstructor, login, register, fetchMe, logout }
+  return { user, token, role, isAuthenticated, isInstructor, login, register, fetchMe, logout }
 })

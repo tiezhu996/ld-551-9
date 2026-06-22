@@ -10,6 +10,7 @@ const router = createRouter({
     { path: '/courses/:id', component: () => import('@/pages/courses/CourseDetail.vue') },
     { path: '/learn/:courseId', component: () => import('@/pages/learn/LearnPage.vue'), meta: { requiresAuth: true, roles: [UserRole.STUDENT, UserRole.ADMIN] } },
     { path: '/dashboard', component: () => import('@/pages/Dashboard.vue'), meta: { requiresAuth: true, roles: [UserRole.STUDENT, UserRole.ADMIN] } },
+    { path: '/favorites', component: () => import('@/pages/favorites/FavoritesPage.vue'), meta: { requiresAuth: true, roles: [UserRole.STUDENT, UserRole.ADMIN] } },
     { path: '/instructor/courses', component: () => import('@/pages/instructor/Courses.vue'), meta: { requiresAuth: true, roles: [UserRole.INSTRUCTOR, UserRole.ADMIN] } },
     { path: '/login', component: () => import('@/pages/auth/Login.vue') },
     { path: '/register', component: () => import('@/pages/auth/Register.vue') },

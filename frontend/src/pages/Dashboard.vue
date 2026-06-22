@@ -8,15 +8,22 @@
       <el-statistic title="总学习进度" :value="averageProgress" suffix="%" />
       <el-statistic title="已完成课程" :value="completedCount" />
     </div>
+    <div class="quick-actions">
+      <el-button type="primary" @click="$router.push('/favorites')">
+        <el-icon><Star /></el-icon>
+        我的收藏
+      </el-button>
+    </div>
     <h2>我的课程</h2>
     <div class="grid">
-      <CourseCard v-for="item in enrollments" :key="item.id" :course="item.course!" :progress="item.progress" />
+      <CourseCard v-for="item in enrollments" :key="item.id" :course="item.course!" :progress="item.progress" :show-favorite="true" />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { Star } from '@element-plus/icons-vue'
 import CourseCard from '@/components/CourseCard.vue'
 import { useEnrollmentStore } from '@/stores/enrollmentStore'
 
@@ -44,5 +51,15 @@ onMounted(store.fetchEnrollments)
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 18px;
+}
+
+.quick-actions {
+  margin-bottom: 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 </style>

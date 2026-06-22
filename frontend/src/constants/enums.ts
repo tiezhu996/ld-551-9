@@ -29,6 +29,10 @@ export enum UserRole {
   ADMIN = 'ADMIN'
 }
 
+export enum FavoriteType {
+  COURSE = 'COURSE'
+}
+
 export const courseLevelLabel: Record<CourseLevel, string> = {
   [CourseLevel.BEGINNER]: '入门',
   [CourseLevel.INTERMEDIATE]: '进阶',

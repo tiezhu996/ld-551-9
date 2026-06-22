@@ -30,3 +30,7 @@ class UserRole(StrEnum):
     STUDENT = "STUDENT"
     INSTRUCTOR = "INSTRUCTOR"
     ADMIN = "ADMIN"
+
+
+class FavoriteType(StrEnum):
+    COURSE = "COURSE"

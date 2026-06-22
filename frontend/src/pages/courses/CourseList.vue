@@ -26,7 +26,7 @@
         <span>{{ courseStore.total }} 门课程</span>
       </div>
       <div class="grid">
-        <CourseCard v-for="course in courseStore.courses" :key="course.id" :course="course" />
+        <CourseCard v-for="course in courseStore.courses" :key="course.id" :course="course" :show-favorite="true" />
       </div>
     </main>
   </section>

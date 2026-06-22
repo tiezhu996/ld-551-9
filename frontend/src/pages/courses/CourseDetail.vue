@@ -1,7 +1,18 @@
 <template>
   <section class="page" v-if="course">
     <div class="detail-head">
-      <img :src="course.cover_image" :alt="course.title" />
+      <div class="cover-wrapper">
+        <img :src="course.cover_image" :alt="course.title" />
+        <el-button
+          v-if="isLoggedIn"
+          class="favorite-btn"
+          :type="isFavorited ? 'danger' : 'default'"
+          :icon="isFavorited ? StarFilled : Star"
+          circle
+          size="large"
+          @click="handleToggleFavorite"
+        />
+      </div>
       <div>
         <el-tag>{{ course.category }}</el-tag>
         <h1>{{ course.title }}</h1>
@@ -33,20 +44,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Star, StarFilled } from '@element-plus/icons-vue'
 import ChapterTree from '@/components/ChapterTree.vue'
 import { useCourseStore } from '@/stores/courseStore'
 import { useOrderStore } from '@/stores/orderStore'
+import { useFavoriteStore } from '@/stores/favoriteStore'
+import { useAuthStore } from '@/stores/authStore'
+import { FavoriteType } from '@/constants/enums'
 import { formatMinutes, formatMoney } from '@/utils/format'
 
 const route = useRoute()
 const router = useRouter()
 const courseStore = useCourseStore()
 const orderStore = useOrderStore()
+const favoriteStore = useFavoriteStore()
+const authStore = useAuthStore()
 const course = computed(() => courseStore.currentCourse)
 const chapters = computed(() => courseStore.chapters)
+const isLoggedIn = computed(() => authStore.isAuthenticated)
+const isFavorited = ref(false)
 
 async function buy() {
   if (!course.value) return
@@ -61,7 +80,33 @@ async function buy() {
   router.push(`/learn/${course.value.id}`)
 }
 
-onMounted(() => courseStore.fetchCourse(Number(route.params.id)))
+async function handleToggleFavorite() {
+  if (!course.value || !isLoggedIn.value) {
+    ElMessage.warning('请先登录')
+    return
+  }
+  const result = await favoriteStore.toggleFavorite(FavoriteType.COURSE, course.value.id)
+  isFavorited.value = result.is_favorited
+  ElMessage.success(result.is_favorited ? '已收藏' : '已取消收藏')
+}
+
+async function loadFavoriteStatus() {
+  if (!course.value || !isLoggedIn.value) return
+  const cached = favoriteStore.getCachedStatus(FavoriteType.COURSE, course.value.id)
+  if (cached) {
+    isFavorited.value = cached.is_favorited
+  } else {
+    const status = await favoriteStore.fetchStatus(FavoriteType.COURSE, course.value.id)
+    isFavorited.value = status.is_favorited
+  }
+}
+
+watch(course, () => loadFavoriteStatus())
+
+onMounted(() => {
+  courseStore.fetchCourse(Number(route.params.id))
+  loadFavoriteStatus()
+})
 </script>
 
 <style scoped>
@@ -76,11 +121,22 @@ onMounted(() => courseStore.fetchCourse(Number(route.params.id)))
   margin-bottom: 20px;
 }
 
-.detail-head img {
+.cover-wrapper {
+  position: relative;
+}
+
+.cover-wrapper img {
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
   border-radius: 8px;
+}
+
+.favorite-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
 }
 
 .detail-meta,

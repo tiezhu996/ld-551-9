@@ -3,6 +3,7 @@ CREATE TYPE course_status AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED');
 CREATE TYPE course_level AS ENUM ('BEGINNER', 'INTERMEDIATE', 'ADVANCED');
 CREATE TYPE lesson_type AS ENUM ('VIDEO', 'TEXT', 'QUIZ');
 CREATE TYPE order_status AS ENUM ('PENDING', 'PAID', 'REFUNDED', 'CANCELLED');
+CREATE TYPE favorite_type AS ENUM ('COURSE');
 
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
@@ -93,6 +94,16 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS favorites (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  target_type favorite_type NOT NULL,
+  target_id INTEGER NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT uq_favorite_user_target UNIQUE (user_id, target_type, target_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_courses_public_search ON courses(status, category, level, created_at);
 CREATE INDEX IF NOT EXISTS idx_lessons_chapter ON lessons(chapter_id, sort_order);
 CREATE INDEX IF NOT EXISTS idx_orders_user_status ON orders(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_favorites_user_type ON favorites(user_id, target_type, created_at DESC);
